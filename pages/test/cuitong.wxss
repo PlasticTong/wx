@@ -1,0 +1,99 @@
+/* 基础样式 */
+
+
+.container {
+  background-color: #f5f5f5;
+  padding-top: 6vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* transform: rotate(90deg);
+  transform-origin: left top; */
+  width: 100vh;
+  height: 100vw;
+  position: absolute;
+  /* top: 0;
+  left: 100vw; */
+}
+
+/* 导航栏 */
+.navbar {
+  background-color: #2762b1;
+  height: 6vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1100;
+}
+
+.title {
+  color: #333;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 20px;
+  padding: 5px 15px;
+  width: 200px;
+}
+
+.search-input {
+  color: #666;
+  font-size: 14px;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.search-icon {
+  width: 18px;
+  height: 18px;
+}
+
+/* 主要内容区域 */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0px;
+  flex: 1;
+  width: 100%; /* 确保宽度占满父容器 */
+  /* margin-top: 10vh; */
+  margin: 0;
+  padding: 0;
+}
+
+
+
+.overview-card {
+  background-color: rgb(130, 134, 131);
+  border-radius: 10px;
+  /* padding: 200px; */
+  /* flex:1; */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  /* width: 500px; */
+  height: 47vh;
+  width: 100vw;
+}
+
+
+/* 详细信息 */
+
+
+.detail-card {
+  background-color: rgb(83, 43, 83);
+  border-radius: 12px;
+  
+  /* padding: 20px; */
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  width: 100vw;
+  height: 47vh;
+}

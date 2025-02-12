@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "系统测试",
+  "usingComponents": {},
+  "usingSwanComponents": {
+    "d3": "dynamicLib://d3Lib/d3"
+  }
+}

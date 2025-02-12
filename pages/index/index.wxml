@@ -1,0 +1,6 @@
+<!--index.wxml-->
+<view class="container">
+  <input class="input" type="text" placeholder="请输入内容" bindinput="handleInput"/>
+  <button class="btn" type="primary" bindtap="handleClick">点击按钮</button>
+  <navigator url="/pages/test/cuitong" class="link">跳转到崔童无敌页面</navigator>
+</view>

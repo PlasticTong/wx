@@ -1,0 +1,54 @@
+<view class="container">
+  <!-- 导航栏 -->
+  <view class="navbar">
+    <text class="title">EduTrack</text>
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索" />
+      <image class="search-icon" src="/images/search.png" />
+    </view>
+  </view>
+  
+  <!-- 主要内容区域 -->
+  <view class="main-content">
+    <!-- 数据概览 -->
+    <view >
+      <view class="overview-card">
+        <text class="card-title">学习进度</text>
+        <!-- <view class="chart-container">
+          <view class="chart">
+            <block wx:for="{{chartData}}" wx:key="index">
+              <view 
+                class="chart-item" 
+                style="transform: rotate({{item.startAngle}}deg); background-color: {{item.color}};"
+                data-index="{{index}}"
+                bindtap="handleChartClick"
+              ></view>
+            </block>
+          </view>
+        </view>
+        <view class="info" wx:if="{{selectedItem}}">
+          <text>当前选中：{{selectedItem.name}} - {{selectedItem.value}}%</text>
+        </view> -->
+      </view>
+      
+      <!-- <view class="overview-card">
+        <text class="card-title">趋势分析</text>
+        <view class="line-chart-container">
+          <canvas 
+            id="lineChart" 
+            canvas-id="lineChart" 
+            style="width: 100%; height: 200px;"
+          ></canvas>
+        </view>
+      </view> -->
+    </view>
+
+    <!-- 详细信息 -->
+    <view class="detail-section">
+      <view class="detail-card">
+        <text class="card-title">近期活动</text>
+        
+      </view>
+    </view>
+  </view>
+</view>

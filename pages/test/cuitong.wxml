@@ -1,0 +1,25 @@
+<view class="container">
+  <!-- 导航栏 -->
+  <view class="navbar">
+    <text class="title">EduTasdasdrack</text>
+    <view class="search-box">
+      <input class="search-input" placeholder="搜索" />
+      <!-- <image class="search-icon" src="/images/search.png" /> -->
+    </view>
+  </view>
+
+  <!-- 主要内容区域 -->
+  <view class="main-content">
+    <!-- 数据概览 -->
+    <view class="overview-card">
+      <text class="card-title">{{title}}</text>
+      <button catchtap="testbuttom">abc</button>
+      <!-- <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width:600px;height:400px;"></canvas> -->
+    </view>
+    <!-- 详细信息 -->
+    <view class="detail-card">
+      <text class="card-title">近期活动</text>
+      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw;height:40vh"></canvas>
+    </view>
+  </view>
+</view>
