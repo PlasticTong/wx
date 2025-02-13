@@ -13,13 +13,16 @@
     <!-- 数据概览 -->
     <view class="overview-card">
       <text class="card-title">{{title}}</text>
-      <button catchtap="testbuttom">abc</button>
+    
       <!-- <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width:600px;height:400px;"></canvas> -->
+      <!-- <t-button theme="primary" block content="强按钮"></t-button> -->
+      
+      <image style="position: relative; left: 24rpx; top: 47rpx; width: 704rpx; height: 599rpx; display: inline-block; box-sizing: border-box" src="https://mmbiz.qpic.cn/mmbiz_png/icTdbqWNOwNQ0ia79enzYJBsZ3CIkLQGe39qeOxbpT9oM9KaCthzBa0PF75xzBGjZQGlM69TDggxpNX7ACibCjjtw/0?wx_fmt=png&t=1614824466" />
     </view>
     <!-- 详细信息 -->
     <view class="detail-card">
       <text class="card-title">近期活动</text>
-      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw;height:40vh"></canvas>
+      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw;height:40vh" bindtap='handleCanvasTap'></canvas>
     </view>
   </view>
 </view>
