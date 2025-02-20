@@ -1,11 +1,10 @@
 <view class="container">
   <!-- 导航栏 -->
   <view class="navbar">
-    <text class="title">EduTasdasdrack</text>
-    <view class="search-box">
-      <input class="search-input" placeholder="搜索" />
-      <!-- <image class="search-icon" src="/images/search.png" /> -->
-    </view>
+    <text class="title">EduTrack</text>
+    <!-- <view class="search-box">
+      <input class="search-input" placeholder="搜索"/>
+    </view> -->
   </view>
 
   <!-- 主要内容区域 -->
@@ -13,16 +12,19 @@
     <!-- 数据概览 -->
     <view class="overview-card">
       <text class="card-title">{{title}}</text>
+      <canvas type="2d" id="myCanvasPie" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
     
       <!-- <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width:600px;height:400px;"></canvas> -->
       <!-- <t-button theme="primary" block content="强按钮"></t-button> -->
       
-      <image style="position: relative; left: 24rpx; top: 47rpx; width: 704rpx; height: 599rpx; display: inline-block; box-sizing: border-box" src="https://mmbiz.qpic.cn/mmbiz_png/icTdbqWNOwNQ0ia79enzYJBsZ3CIkLQGe39qeOxbpT9oM9KaCthzBa0PF75xzBGjZQGlM69TDggxpNX7ACibCjjtw/0?wx_fmt=png&t=1614824466" />
+      <!-- <image style="position: relative; left: 24rpx; top: 47rpx; width: 704rpx; height: 599rpx; display: inline-block; box-sizing: border-box" src="https://mmbiz.qpic.cn/mmbiz_png/icTdbqWNOwNQ0ia79enzYJBsZ3CIkLQGe39qeOxbpT9oM9KaCthzBa0PF75xzBGjZQGlM69TDggxpNX7ACibCjjtw/0?wx_fmt=png&t=1614824466" /> -->
     </view>
     <!-- 详细信息 -->
     <view class="detail-card">
-      <text class="card-title">近期活动</text>
-      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw;height:40vh" bindtap='handleCanvasTap'></canvas>
+      <text class="card-title">Interaction View</text>
+      <canvas type="2d" id="myCanvas2"    style="width: 100vw; height:10vh;"></canvas>
+      <canvas type="2d" id="overlayCanvas" bindtouchstart="handleTouchStart" bindtouchmove="handleTouchMove" bindtouchend="handleTouchEnd" style="width: 100vw; height:10vh;position: relative; left: 0rpx; top: -10vh"></canvas>
+      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw; height: 30vh;margin-top: 0px;position: relative; left: 0rpx; top: -10vh" bindtap='handleCanvasTap' ></canvas>
     </view>
   </view>
 </view>

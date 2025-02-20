@@ -2,7 +2,7 @@
 
 
 .container {
-  background-color: #f5f5f5;
+  background-color: #DDEEE6;
   padding-top: 6vh;
   min-height: 100vh;
   display: flex;
@@ -18,7 +18,7 @@
 
 /* 导航栏 */
 .navbar {
-  background-color: #2762b1;
+  background-color: #ffffff;
   height: 6vh;
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@
 }
 
 .title {
-  color: #333;
+  color: #156800;
   font-size: 20px;
   font-weight: bold;
 }
@@ -48,7 +48,7 @@
 }
 
 .search-input {
-  color: #666;
+  color: #006836;
   font-size: 14px;
   flex: 1;
   margin-left: 8px;
@@ -74,14 +74,15 @@
 
 
 .overview-card {
-  background-color: rgb(130, 134, 131);
+  background-color: rgb(255, 255, 255);
   border-radius: 10px;
   /* padding: 200px; */
   /* flex:1; */
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   /* width: 500px; */
-  height: 47vh;
+  height: 46vh;
   width: 100vw;
+  margin-bottom: 1vh;
 }
 
 
@@ -89,11 +90,18 @@
 
 
 .detail-card {
-  background-color: rgb(83, 43, 83);
+  background-color: rgb(248, 248, 248);
   border-radius: 12px;
   
   /* padding: 20px; */
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   width: 100vw;
   height: 47vh;
+}
+
+.card-title{
+  color: #006836;
+  font-size: 15px;
+  font-weight: bold;
+  /* font-family: 'Arial'; */
 }

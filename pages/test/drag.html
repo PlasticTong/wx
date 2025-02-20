@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draggable Box on Line Chart</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="myCanvas2"></canvas>
+  <div id="dataInfo"></div>
+
+  <script>
+    const lineChart = {
+      drawChart(ctx, data, options) {
+        const {
+          x = (d) => d.year,
+          y = (d) => d.value,
+          yLabel = "",
+          width,
+          height = 100,
+          color = "rgb(139, 181, 110)",
+          fillColor = "rgba(139, 181, 110, 0.5)",
+          marginLeft = 10,
+          marginBottom = 30,
+          marginTop = 10,
+          marginRight = 10,
+          xType = "linear",
+          yType = "linear"
+        } = options;
+
+        const X = data.map(x);
+        const Y = data.map(y);
+
+        const xDomain = [Math.min(...X), Math.max(...X)];
+        const yDomain = [0, Math.max(...Y)];
+
+        const xScale = scaleLinear(xDomain, [marginLeft, width - marginRight]);
+        const yScale = scaleLinear(yDomain, [height - marginBottom, marginTop]);
+
+        drawAxes(ctx, width, height, marginLeft, marginTop, marginRight, marginBottom, xScale.scale, data.map(d => x(d)));
+
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.fillStyle = fillColor;
+
+        let firstPoint = true;
+
+        data.forEach((d, i) => {
+          const xCoord = xScale.scale(d.year);
+          const yCoord = yScale.scale(d.value);
+
+          if (firstPoint) {
+            ctx.moveTo(xCoord, yCoord);
+            firstPoint = false;
+          } else {
+            ctx.lineTo(xCoord, yCoord);
+          }
+        });
+
+        ctx.lineTo(width - marginRight, height - marginBottom);
+        ctx.lineTo(marginLeft, height - marginBottom);
+        ctx.closePath();
+
+        ctx.fill();
+        ctx.stroke();
+
+        if (yLabel) {
+          ctx.fillStyle = "black";
+          ctx.fillText(yLabel, 10, height / 2);
+        }
+
+        return { xScale, yScale };
+      }
+    };
+
+    function scaleLinear(domain, range) {
+      const [domainMin, domainMax] = domain;
+      const [rangeMin, rangeMax] = range;
+
+      const scale = (value) => ((value - domainMin) * (rangeMax - rangeMin)) / (domainMax - domainMin) + rangeMin;
+      const invert = (value) => ((value - rangeMin) * (domainMax - domainMin)) / (rangeMax - rangeMin) + domainMin;
+
+      return { scale, invert };
+    }
+
+    function drawAxes(ctx, width, height, marginLeft, marginTop, marginRight, marginBottom, xScale, xLabels) {
+      ctx.beginPath();
+      ctx.moveTo(marginLeft, height - marginBottom);
+      ctx.lineTo(width - marginRight, height - marginBottom);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(marginLeft, marginTop);
+      ctx.lineTo(marginLeft, height - marginBottom);
+      ctx.stroke();
+
+      xLabels.forEach((label, index) => {
+        const xPos = marginLeft + (width - marginLeft - marginRight) / (xLabels.length - 1) * index;
+        ctx.beginPath();
+        ctx.moveTo(xPos, height - marginBottom);
+        ctx.lineTo(xPos, height - marginBottom + 5);
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillStyle = 'black';
+        ctx.fillText(label, xPos, height - marginBottom + 10);
+      });
+    }
+
+    const query = document.querySelector.bind(document);
+    const canvas = query('#myCanvas2');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 400 * dpr;
+    canvas.height = 300 * dpr;
+    ctx.scale(dpr, dpr);
+
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    const windData = [
+      { year: 2010, value: 10 },
+      { year: 2011, value: 20 },
+      { year: 2012, value: 15 },
+      { year: 2013, value: 25 },
+      { year: 2014, value: 30 },
+      { year: 2015, value: 28 },
+      { year: 2016, value: 35 },
+      { year: 2017, value: 40 },
+      { year: 2018, value: 38 },
+      { year: 2019, value: 45 },
+      { year: 2020, value: 50 }
+    ];
+
+    const { xScale, yScale } = lineChart.drawChart(ctx, windData, {
+      x: (d) => d.year,
+      y: (d) => d.value,
+      yLabel: "Wind Speed",
+      width: 400,
+      height: 300,
+      color: "rgb(139, 181, 110)"
+    });
+
+    let isDragging = false;
+    let startX = xScale.scale(windData[0].year); // Start from the first year
+    const fixedBoxWidth = (xScale.scale(windData[windData.length - 1].year) - xScale.scale(windData[0].year)) / windData.length;
+
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.offsetX;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      // Ensure startX stays within valid bounds
+      startX = Math.max(xScale.scale(windData[0].year), Math.min(e.offsetX, xScale.scale(windData[windData.length - 1].year) - fixedBoxWidth));
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      lineChart.drawChart(ctx, windData, {
+        x: (d) => d.year,
+        y: (d) => d.value,
+        yLabel: "Wind Speed",
+        width: 400,
+        height: 300,
+        color: "rgb(139, 181, 110)"
+      });
+      drawBox(startX);
+      updateDataInfo(startX);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    function drawBox(startX) {
+      ctx.strokeStyle = "blue";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(startX, 10, fixedBoxWidth, 280);
+    }
+
+    function updateDataInfo(startX) {
+      const startYear = xScale.invert(startX);
+      const endYear = xScale.invert(startX + fixedBoxWidth);
+      const filteredData = windData.filter(d => d.year >= startYear && d.year <= endYear);
+      const infoDiv = query('#dataInfo');
+      infoDiv.innerHTML = `Selected Data: ${JSON.stringify(filteredData)}`;
+    }
+  </script>
+</body>
+</html>
+
+
+
