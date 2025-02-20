@@ -2,8 +2,10 @@
 const d3 = require('../../utils/d3.v7.min.js'); // 确保路径正确
 const lineChart = require('./linechart.js');
 const pieChart = require('./piechart.js');
+const heatmap = require('./heatmap');
 Page({
   data: {
+    currentView: 'view1', // 当前显示的视图
     title: "Overview",
     windData: [
       { year: 10, value: 1187 },
@@ -21,7 +23,7 @@ Page({
     ],
     history: ([
       [1, [[0, 0], [1, 2], [2, 2], [3, 0], [4, 0], [5, 0], [6, 15], [7, 15]]],
-      [2, [[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 14],[8, 14]]],
+      [2, [[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 14], [8, 14]]],
       [3, [[0, 2], [1, 0], [2, 0], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2]]],
       [4, [[0, 13], [1, 10], [2, 3], [3, 3], [4, 5], [5, 3], [6, 5], [7, 3]]],
       [5, [[0, 14], [1, 11], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4]]],
@@ -69,7 +71,8 @@ Page({
     dataInfo: '',
     fixedBoxWidth: 0,
     xScale: null,
-    yScale: null
+    yScale: null,
+    startXall: 0, // 记录触摸开始时的X坐标
 
   },
   constructor() {
@@ -91,6 +94,10 @@ Page({
     this.drawOverlayInit()
     // 绘画饼图
     pieChart.drawPieChart()
+
+    const rows = 10;
+    const cols = 16;
+    heatmap.drawHeatmap(rows, cols);
   },
   initcanvas: function () {
     wx.createSelectorQuery()
@@ -546,7 +553,7 @@ Page({
 
     const moveX = e.touches[0].x;
     const moveY = e.touches[0].y;
-    console.log(moveX);
+    // console.log(moveX);
 
 
     const query = wx.createSelectorQuery();
@@ -659,7 +666,27 @@ Page({
 
       });
 
-  }
+  },
+  handleTouchStart2(e) {
+    this.setData({
+      startXall: e.touches[0].pageX // 记录触摸开始时的X坐标
+    });
+  },
+
+  handleTouchEnd2(e) {
+    const endX = e.changedTouches[0].pageX;
+    const distance = this.data.startXall - endX;
+
+    if (distance > 50) { // 如果向左滑动超过50像素，则切换视图
+      this.setData({
+        currentView: 'view2'
+      });
+    } else if (distance < -50) { // 如果向右滑动超过50像素，则切换回原视图
+      this.setData({
+        currentView: 'view1'
+      });
+    }
+  },
 
 
 });

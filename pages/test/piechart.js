@@ -2,6 +2,12 @@ function drawPieChart(){
     wx.createSelectorQuery().select('#myCanvasPie')
       .fields({ node: true, size: true })
       .exec((res) => {
+
+        if (!res || !res[0] || !res[0].node) {
+          console.error('CanvasPie not found or invalid.');
+          return;
+        }
+
         const canvas = res[0].node;
         const ctx = canvas.getContext('2d');
         const dpr = wx.getWindowInfo().pixelRatio;

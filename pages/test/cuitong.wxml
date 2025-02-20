@@ -7,24 +7,37 @@
     </view> -->
   </view>
 
+  <!-- <view bindtouchstart="handleTouchStart" bindtouchend="handleTouchEnd"> -->
   <!-- 主要内容区域 -->
   <view class="main-content">
-    <!-- 数据概览 -->
-    <view class="overview-card">
-      <text class="card-title">{{title}}</text>
-      <canvas type="2d" id="myCanvasPie" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
-    
-      <!-- <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width:600px;height:400px;"></canvas> -->
-      <!-- <t-button theme="primary" block content="强按钮"></t-button> -->
-      
-      <!-- <image style="position: relative; left: 24rpx; top: 47rpx; width: 704rpx; height: 599rpx; display: inline-block; box-sizing: border-box" src="https://mmbiz.qpic.cn/mmbiz_png/icTdbqWNOwNQ0ia79enzYJBsZ3CIkLQGe39qeOxbpT9oM9KaCthzBa0PF75xzBGjZQGlM69TDggxpNX7ACibCjjtw/0?wx_fmt=png&t=1614824466" /> -->
-    </view>
+
+    <!-- 横向滑动的内容区域 -->
+    <scroll-view type="list" class="scroll-view_H" scroll-x="true"  >
+      <!-- 数据概览 -->
+      <view id="overview" class="scroll-view-item_H overview-card">
+        <text class="card-title">{{title}}</text>
+        <canvas  type="2d" id="myCanvasPie" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
+      </view>
+
+      <!-- 视图2 -->
+      <view id="view2" class="scroll-view-item_H overview-card">
+        <text class="card-title">Status View</text>
+        <canvas  type="2d" id="myCanvasHeat" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
+        
+      </view>
+
+    </scroll-view>
+
+
+
     <!-- 详细信息 -->
     <view class="detail-card">
       <text class="card-title">Interaction View</text>
-      <canvas type="2d" id="myCanvas2"    style="width: 100vw; height:10vh;"></canvas>
+      <canvas type="2d" id="myCanvas2" style="width: 100vw; height:10vh;"></canvas>
       <canvas type="2d" id="overlayCanvas" bindtouchstart="handleTouchStart" bindtouchmove="handleTouchMove" bindtouchend="handleTouchEnd" style="width: 100vw; height:10vh;position: relative; left: 0rpx; top: -10vh"></canvas>
-      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw; height: 30vh;margin-top: 0px;position: relative; left: 0rpx; top: -10vh" bindtap='handleCanvasTap' ></canvas>
+      <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw; height: 30vh;margin-top: 0px;position: relative; left: 0rpx; top: -10vh" bindtap='handleCanvasTap'></canvas>
     </view>
+
   </view>
+
 </view>

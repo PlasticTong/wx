@@ -105,3 +105,14 @@
   font-weight: bold;
   /* font-family: 'Arial'; */
 }
+.scroll-view_H{
+  white-space: nowrap;
+}
+.scroll-view-item{
+  height: 300rpx;
+}
+.scroll-view-item_H{
+  display: inline-block;
+  width: 100%;
+  height: 46vh;
+}
