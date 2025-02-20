@@ -3,6 +3,7 @@ const d3 = require('../../utils/d3.v7.min.js'); // 确保路径正确
 const lineChart = require('./linechart.js');
 const pieChart = require('./piechart.js');
 const heatmap = require('./heatmap');
+const reviewChart = require('./review');
 Page({
   data: {
     currentView: 'view1', // 当前显示的视图
@@ -98,6 +99,7 @@ Page({
     const rows = 10;
     const cols = 16;
     heatmap.drawHeatmap(rows, cols);
+    reviewChart.drawCanvasReview()
   },
   initcanvas: function () {
     wx.createSelectorQuery()

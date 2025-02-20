@@ -12,31 +12,41 @@
   <view class="main-content">
 
     <!-- 横向滑动的内容区域 -->
-    <scroll-view type="list" class="scroll-view_H" scroll-x="true"  >
+    <scroll-view type="list" class="scroll-view_H" scroll-x="true">
       <!-- 数据概览 -->
       <view id="overview" class="scroll-view-item_H overview-card">
         <text class="card-title">{{title}}</text>
-        <canvas  type="2d" id="myCanvasPie" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
+        <canvas type="2d" id="myCanvasPie" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
       </view>
 
       <!-- 视图2 -->
       <view id="view2" class="scroll-view-item_H overview-card">
         <text class="card-title">Status View</text>
-        <canvas  type="2d" id="myCanvasHeat" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
-        
+        <canvas type="2d" id="myCanvasHeat" canvas-id="myCanvas" style="width: 100vw; height:40vh;"></canvas>
+
       </view>
 
     </scroll-view>
 
 
 
-    <!-- 详细信息 -->
-    <view class="detail-card">
-      <text class="card-title">Interaction View</text>
-      <canvas type="2d" id="myCanvas2" style="width: 100vw; height:10vh;"></canvas>
+    <!-- 横向滑动的内容区域 -->
+    <scroll-view type="list" class="scroll-view_H" scroll-x="true">
+      <!-- 详细信息 -->
+      <view id="Interaction" class="scroll-view-item_H detail-card">
+        <text class="card-title">Interaction View</text>
+        <canvas type="2d" id="myCanvas2" style="width: 100vw; height:10vh;"></canvas>
       <canvas type="2d" id="overlayCanvas" bindtouchstart="handleTouchStart" bindtouchmove="handleTouchMove" bindtouchend="handleTouchEnd" style="width: 100vw; height:10vh;position: relative; left: 0rpx; top: -10vh"></canvas>
       <canvas type="2d" id="myCanvas" canvas-id="myCanvas" style="width: 100vw; height: 30vh;margin-top: 0px;position: relative; left: 0rpx; top: -10vh" bindtap='handleCanvasTap'></canvas>
-    </view>
+
+        <!-- <canvas type="2d" id="myCanvasReview" canvas-id="myCanvas" style="width: 100vw; height: 100vh;"></canvas> -->
+      </view>
+      <!-- 回顾视图 -->
+      <view id="review" class="scroll-view-item_H detail-card">
+        <text class="card-title">review</text>
+        <canvas type="2d" id="myCanvasReview" canvas-id="myCanvas" style="width: 100vw; height: 100vh;"></canvas>
+      </view>
+    </scroll-view>
 
   </view>
 
