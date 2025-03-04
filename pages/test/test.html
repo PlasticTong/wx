@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stacked Wave and Solid Rectangles</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stackedWaveChart" width="600" height="400"></canvas>
+    <script>
+        const data = [
+            { category: 'A', values: [30, 20, 50, 40, 60] },
+            { category: 'B', values: [25, 35, 45, 55, 70] },
+            { category: 'C', values: [40, 50, 60, 70, 80] },
+            { category: 'D', values: [55, 65, 75, 85, 90] }
+        ];
+
+        const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+
+        function drawWaveAndSolid(ctx, x, y, width, height, color) {
+            const midX = width * 0.3; // 减小波浪线区域的宽度
+            const waveAmplitude = 5; // 减小波浪的振幅
+            const waveFrequency = 0.5; // 增加波浪的频率
+
+            // Draw vertical wave on the left side
+            ctx.beginPath();
+            ctx.lineWidth = 3; // 设置线条宽度
+            ctx.strokeStyle = color; // 设置线条颜色为纯色块的颜色
+
+            // Start from the middle of the left side
+            let startX = x + midX - waveAmplitude * Math.sin(waveFrequency * 0);
+
+            // Draw small horizontal line at the start
+            ctx.moveTo(startX - 5, y);
+            ctx.lineTo(startX + 5, y);
+
+            for (let cy = 0; cy <= height; cy++) {
+                const cx = startX - waveAmplitude * Math.sin(waveFrequency * cy);
+                if (cy === 0) {
+                    ctx.moveTo(cx, y + cy);
+                } else {
+                    ctx.lineTo(cx, y + cy);
+                }
+            }
+
+            // End at the middle of the left side
+            let endX = startX - waveAmplitude * Math.sin(waveFrequency * height);
+
+            // Draw small horizontal line at the end
+            ctx.moveTo(endX - 5, y + height);
+            ctx.lineTo(endX + 5, y + height);
+
+            ctx.stroke();
+
+            // Draw right side solid rectangle with border
+            ctx.beginPath();
+            ctx.rect(x + midX, y, width - midX, height);
+            ctx.fillStyle = color; // 右侧纯色块的颜色
+            ctx.fill();
+            ctx.lineWidth = 2; // 设置边框宽度
+            ctx.strokeStyle = color; // 设置边框颜色
+            ctx.stroke();
+
+            // Draw outer border around the entire segment
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
+            ctx.lineWidth = 2; // 设置边框宽度
+            ctx.strokeStyle = color; // 设置边框颜色
+            ctx.stroke();
+        }
+
+        function drawStackedBarChart(data, ctx, width, height) {
+            const barWidth = (width / data.length) - 20; // 缩小宽度并增加间距
+            const maxValues = data.map(item => item.values.reduce((acc, val) => acc + val, 0));
+            const maxValue = Math.max(...maxValues);
+            const scale = height / maxValue;
+
+            data.forEach((item, index) => {
+                let prevHeight = 0;
+                item.values.forEach((value, i) => {
+                    const barHeight = value * scale;
+                    const offsetX = index * (barWidth + 20) + 10; // 增加水平间距
+                    const offsetY = height - (prevHeight + barHeight) + 10; // 增加垂直间距
+
+                    drawWaveAndSolid(ctx, offsetX, offsetY, barWidth, barHeight, colors[i]);
+
+                    prevHeight += barHeight;
+                });
+            });
+
+            // Draw labels and axes
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+
+            data.forEach((item, index) => {
+                ctx.fillText(item.category, index * (barWidth + 20) + barWidth / 2 + 10, height + 30); // 调整标签位置
+            });
+
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+        }
+
+        window.onload = () => {
+            const canvas = document.getElementById('stackedWaveChart');
+            const ctx = canvas.getContext('2d');
+            drawStackedBarChart(data, ctx, canvas.width, canvas.height);
+        };
+    </script>
+</body>
+</html>
+
+
+

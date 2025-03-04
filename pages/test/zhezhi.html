@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stacked Bar Chart with Multiple Particle Shapes</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+            display: block;
+            margin: 20px auto;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="stackedBarChart" width="600" height="400"></canvas>
+    <script>
+        const data = [
+            { category: 'A', values: [30, 20, 50, 40, 60], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 观点表达
+            { category: 'B', values: [25, 35, 45, 55, 70], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 提问
+            { category: 'C', values: [40, 50, 60, 70, 80], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 总结
+            { category: 'D', values: [55, 65, 75, 85, 90], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] } // 反驳
+        ];
+
+        const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'];
+        const shapes = ['circle', 'triangle', 'diamond', 'hexagon'];
+
+        function drawSolidWithParticles(ctx, x, y, width, height, color, shapes) {
+            // Draw right side white rectangle with border
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
+            ctx.fillStyle = 'white'; // 右侧纯色块的颜色改为白色
+            ctx.fill();
+            ctx.lineWidth = 2; // 设置边框宽度
+            ctx.strokeStyle = color; // 设置边框颜色
+            ctx.stroke();
+
+            // Draw particle shapes in the solid rectangle
+            drawParticleShapes(ctx, x, y, width, height, color, shapes);
+
+            // Draw outer border around the entire segment
+            ctx.beginPath();
+            ctx.rect(x, y, width, height);
+            ctx.lineWidth = 2; // 设置边框宽度
+            ctx.strokeStyle = color; // 设置边框颜色
+            ctx.stroke();
+        }
+
+        function drawParticleShapes(ctx, x, y, width, height, color, shapes) {
+            const particleCount = 50; // 每个矩形内的粒子数量
+            const particleSize = 5; // 粒子大小
+
+            for (let i = 0; i < particleCount; i++) {
+                const px = x + Math.random() * width;
+                const py = y + Math.random() * height;
+                const shapeIndex = Math.floor(Math.random() * shapes.length);
+                const shape = shapes[shapeIndex];
+
+                switch (shape) {
+                    case 'circle':
+                        drawCircle(ctx, px, py, particleSize, color);
+                        break;
+                    case 'triangle':
+                        drawTriangle(ctx, px, py, particleSize, color);
+                        break;
+                    case 'diamond':
+                        drawDiamond(ctx, px, py, particleSize, color);
+                        break;
+                    case 'hexagon':
+                        drawHexagon(ctx, px, py, particleSize, color);
+                        break;
+                }
+            }
+        }
+
+        function drawCircle(ctx, x, y, size, color) {
+            ctx.beginPath();
+            ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawTriangle(ctx, x, y, size, color) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - size / 2);
+            ctx.lineTo(x - size / 2, y + size / 2);
+            ctx.lineTo(x + size / 2, y + size / 2);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawDiamond(ctx, x, y, size, color) {
+            ctx.beginPath();
+            ctx.moveTo(x, y - size / 2);
+            ctx.lineTo(x + size / 2, y);
+            ctx.lineTo(x, y + size / 2);
+            ctx.lineTo(x - size / 2, y);
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawHexagon(ctx, x, y, size, color) {
+            ctx.beginPath();
+            const angle = Math.PI / 3;
+            for (let i = 0; i < 6; i++) {
+                const sx = x + size * Math.cos(angle * i);
+                const sy = y + size * Math.sin(angle * i);
+                if (i === 0) {
+                    ctx.moveTo(sx, sy);
+                } else {
+                    ctx.lineTo(sx, sy);
+                }
+            }
+            ctx.closePath();
+            ctx.fillStyle = color;
+            ctx.fill();
+        }
+
+        function drawStackedBarChart(data, ctx, width, height) {
+            const spacing = 20; // 每个堆叠部分之间的间距
+            const totalSpacing = spacing * (data.length - 1);
+            const barWidth = (width - totalSpacing) / data.length - 20; // 缩小宽度并增加间距
+            const maxValues = data.map(item => item.values.reduce((acc, val) => acc + val, 0));
+            const maxValue = Math.max(...maxValues);
+            const scale = height / maxValue;
+
+            data.forEach((item, index) => {
+                let prevHeight = 0;
+                item.values.forEach((value, i) => {
+                    const barHeight = value * scale;
+                    const offsetX = index * (barWidth + spacing) + 10; // 增加水平间距
+                    const offsetY = height - (prevHeight + barHeight) + 10; // 增加垂直间距
+
+                    drawSolidWithParticles(ctx, offsetX, offsetY, barWidth, barHeight, colors[i], item.shapes);
+
+                    prevHeight += barHeight;
+                });
+            });
+
+            // Draw labels and axes
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+
+            data.forEach((item, index) => {
+                ctx.fillText(item.category, index * (barWidth + spacing) + barWidth / 2 + 10, height + 30); // 调整标签位置
+            });
+
+            ctx.beginPath();
+            ctx.moveTo(0, height);
+            ctx.lineTo(width, height);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.lineTo(0, height);
+            ctx.stroke();
+        }
+
+        window.onload = () => {
+            const canvas = document.getElementById('stackedBarChart');
+            const ctx = canvas.getContext('2d');
+            drawStackedBarChart(data, ctx, canvas.width, canvas.height);
+        };
+    </script>
+</body>
+</html>
+
+
+

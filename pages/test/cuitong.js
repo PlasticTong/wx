@@ -4,6 +4,8 @@ const lineChart = require('./linechart.js');
 const pieChart = require('./piechart.js');
 const heatmap = require('./heatmap');
 const reviewChart = require('./review');
+const histogram = require('./histogram');
+const histogramDouble = require('./histogarmDouble');
 Page({
   data: {
     currentView: 'view1', // 当前显示的视图
@@ -74,6 +76,14 @@ Page({
     xScale: null,
     yScale: null,
     startXall: 0, // 记录触摸开始时的X坐标
+    hisData: [
+      { category: 'A', values: [30, 20, 50, 40, 60], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 观点表达
+      { category: 'B', values: [25, 35, 45, 55, 70], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 提问
+      { category: 'C', values: [40, 50, 60, 70, 80], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 总结
+      { category: 'D', values: [55, 65, 75, 85, 90], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] },
+      { category: 'e', values: [40, 50, 60, 70, 80], shapes: ['circle', 'triangle', 'diamond', 'hexagon'] }, // 反驳
+  ],
+  hisCol:['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF']
 
   },
   constructor() {
@@ -94,7 +104,13 @@ Page({
     // 绘画移动框-折线图
     this.drawOverlayInit()
     // 绘画饼图
-    pieChart.drawPieChart()
+    // pieChart.drawPieChart()
+
+    const width = 600;
+    const height = 400;
+
+    // histogram.drawStackedBarChart(this.data.hisData, this.data.hisCol, 'stackedWaveChart', width, height);
+    histogramDouble.drawStackedBarChart("stackedWaveChart")
 
     const rows = 10;
     const cols = 16;
