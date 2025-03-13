@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Rectangles and Curves</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="400" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 定义矩形的基本属性
+        const rectWidth = 50; // 矩形的宽度
+        const colSpacing = 70; // 列间距
+        const rowSpacing = 60; // 行间距
+        const startX = 50; // 第一列起始X坐标
+        const startY = 50; // 第一行起始Y坐标
+
+        // 定义每个矩形的高度
+        const heights = {
+            a: 100,
+            b: 150,
+            c: 80,
+            d: 90,
+            e: 120,
+            f: 120,
+            g: 100,
+            h: 130,
+            i: 100,
+        };
+
+        // 绘制矩形函数
+        function drawRect(x, y, width, height, label) {
+            ctx.fillStyle = '#ADD8E6';
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeStyle = 'black';
+            ctx.strokeRect(x, y, width, height);
+            ctx.fillStyle = 'black';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(label, x + width / 2, y + height / 2 + 5);
+        }
+
+        // 计算矩形的位置
+        let positions = {};
+        let currentY = startY;
+
+        // 计算第一列的矩形位置 (a, b, c)
+        for (let label of ['a', 'b', 'c']) {
+            positions[label] = { x: startX, y: currentY };
+            drawRect(startX, currentY, rectWidth, heights[label], label);
+            currentY += heights[label] + rowSpacing;
+        }
+
+        // 计算第二列的矩形位置 (d, e, f)
+        currentY = startY;
+        for (let label of ['d', 'e', 'f']) {
+            positions[label] = { x: startX + rectWidth + colSpacing, y: currentY };
+            drawRect(startX + rectWidth + colSpacing, currentY, rectWidth, heights[label], label);
+            currentY += heights[label] + rowSpacing;
+        }
+
+         // 计算第三列的矩形位置 (g, h, i)
+         currentY = startY;
+        for (let label of ['g', 'h', 'i']) {
+            positions[label] = { x: startX + 2*rectWidth + 2*colSpacing, y: currentY };
+            drawRect(startX + 2*rectWidth + 2*colSpacing, currentY, rectWidth, heights[label], label);
+            currentY += heights[label] + rowSpacing;
+        }
+
+        // 填充两条贝塞尔曲线之间的区域
+        function fillAreaBetweenCurves(topRight1, topLeft2, bottomRight1, bottomLeft2,colorR) {
+            ctx.beginPath();
+
+            // 开始路径并绘制上顶点曲线
+            ctx.moveTo(topRight1.x, topRight1.y); // 起点
+            ctx.bezierCurveTo(
+                topRight1.x + 30, topRight1.y, // 控制点1
+                topLeft2.x - 30, topLeft2.y,   // 控制点2
+                topLeft2.x, topLeft2.y          // 结束点
+            );
+
+            // 移动到第二个矩形的下顶点
+            ctx.lineTo(bottomLeft2.x, bottomLeft2.y);
+
+            // 绘制下顶点曲线
+            ctx.bezierCurveTo(
+                bottomLeft2.x - 30, bottomLeft2.y, // 控制点1
+                bottomRight1.x + 30, bottomRight1.y, // 控制点2
+                bottomRight1.x, bottomRight1.y       // 结束点
+            );
+
+            // 关闭路径
+            ctx.closePath(); 
+
+            // 填充红色
+            ctx.fillStyle = colorR || 'rgba(255, 0, 0, 0.3)';
+            ctx.fill();
+        }
+
+        // 获取第一个矩形（a）的右上顶点和第二个矩形（e）的左上顶点及对应底端点
+        const topRight1 = { x: positions.a.x + rectWidth, y: positions.a.y };
+        const topLeft2 = { x: positions.e.x, y: positions.e.y };
+        const bottomRight1 = { x: positions.a.x + rectWidth, y: positions.a.y + heights.a };
+        const bottomLeft2 = { x: positions.e.x, y: positions.e.y + heights.e/3 };
+
+
+
+
+        const topRight2 = { x: positions.b.x + rectWidth, y: positions.b.y };
+        const topLeft3 = { x: positions.e.x, y: positions.e.y + heights.e/3 };
+        const bottomRight2 = { x: positions.b.x + rectWidth, y: positions.b.y + heights.b };
+        const bottomLeft3 = { x: positions.e.x, y: positions.e.y + 2*heights.e/3 };
+
+        fillAreaBetweenCurves(topRight1, topLeft2, bottomRight1, bottomLeft2,"blue");
+        fillAreaBetweenCurves(topRight2, topLeft3, bottomRight2, bottomLeft3);
+
+        fillAreaBetweenCurves({ x: positions.e.x + rectWidth, y: positions.e.y},  { x: positions.h.x, y: positions.h.y}, { x: positions.e.x + rectWidth, y: positions.e.y + heights.e/3 }, { x: positions.h.x, y: positions.h.y + heights.h/3 },"blue");
+        fillAreaBetweenCurves({ x: positions.e.x + rectWidth, y: positions.e.y+heights.e/3 },  { x: positions.h.x, y: positions.h.y + heights.h/3 }, { x: positions.e.x + rectWidth, y: positions.e.y + heights.e }, { x: positions.h.x, y: positions.h.y + heights.h });
+    </script>
+</body>
+
+</html>
+
+
+

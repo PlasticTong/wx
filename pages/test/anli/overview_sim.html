@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>多层分组讨论分析</title>
+    <style>
+        canvas {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .tooltip {
+            position: absolute;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 6px;
+            font-family: Arial;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="visCanvas" width="800" height="800"></canvas>
+    <div id="tooltip" class="tooltip"></div>
+
+<script>
+const canvas = document.getElementById('visCanvas');
+const ctx = canvas.getContext('2d');
+const tooltip = document.getElementById('tooltip');
+
+// 模拟数据（4个小组，每组3人）
+const groups = [
+    { 
+        name: "第一组",
+        total: 280,  // 总讨论量
+        members: [
+            {name: "成员A", value: 120},
+            {name: "成员B", value: 90},
+            {name: "成员C", value: 70}
+        ],
+        color: "#4e79a7"
+    },
+    {
+        name: "第二组",
+        total: 200,
+        members: [
+            {name: "成员D", value: 100},
+            {name: "成员E", value: 60},
+            {name: "成员F", value: 40}
+        ],
+        color: "#e15759"
+    },
+    {
+        name: "第三组",
+        total: 320,
+        members: [
+            {name: "成员G", value: 150},
+            {name: "成员H", value: 120},
+            {name: "成员I", value: 50}
+        ],
+        color: "#59a14f"
+    },
+    {
+        name: "第四组",
+        total: 180,
+        members: [
+            {name: "成员J", value: 80},
+            {name: "成员K", value: 70},
+            {name: "成员L", value: 30}
+        ],
+        color: "#edc948"
+    }
+];
+
+// 可视化参数
+const config = {
+    center: {x: 400, y: 400},  // 中心坐标
+    innerRadius: 150,           // 内层半径
+    outerRadius: 300,           // 外层半径
+    memberColors: [            // 成员颜色梯度
+        ["#8c96c6", "#9ebcda", "#bfd3e6"], // 第一组配色
+        ["#e7969c", "#dd7c77", "#cc6076"], // 第二组配色
+        ["#7fc97f", "#beaed4", "#fdc086"], // 第三组配色
+        ["#ffff99", "#ffcc99", "#ff9999"]  // 第四组配色
+    ]
+};
+
+// 计算各组的占比角度
+let totalValue = groups.reduce((sum, g) => sum + g.total, 0);
+let currentAngle = -Math.PI / 2; // 从12点方向开始
+
+// 修改后的绘制方法
+function drawPie() {
+    const hollowRadius = 80; // 新增空心半径
+
+    groups.forEach((group, groupIndex) => {
+        const groupAngle = (group.total / totalValue) * Math.PI * 2;
+        
+        // 绘制内层环状（小组总讨论量）
+        ctx.beginPath();
+        ctx.arc(config.center.x, config.center.y, config.innerRadius, 
+               currentAngle, currentAngle + groupAngle);
+        ctx.arc(config.center.x, config.center.y, hollowRadius, 
+               currentAngle + groupAngle, currentAngle, true); // 添加空心路径
+        ctx.closePath();
+        ctx.fillStyle = group.color;
+        ctx.fill();
+
+        // 修改外层绘制（添加间隔）
+        const gap = 15; // 层间间隔
+        let memberStart = currentAngle;
+        group.members.forEach((member, memberIndex) => {
+            const memberAngle = (member.value / group.total) * groupAngle;
+            
+            // 外层路径（添加间隔）
+            ctx.beginPath();
+            ctx.arc(config.center.x, config.center.y, config.outerRadius + gap,
+                   memberStart, memberStart + memberAngle);
+            ctx.arc(config.center.x, config.center.y, config.innerRadius + gap,
+                   memberStart + memberAngle, memberStart, true);
+            ctx.closePath();
+            ctx.fillStyle = config.memberColors[groupIndex][memberIndex];
+            ctx.fill();
+
+            memberStart += memberAngle;
+        });
+
+        currentAngle += groupAngle;
+    });
+}
+
+// // 绘制图例
+// function drawLegend() {
+//     const legendX = 50, legendY = 50;
+    
+//     // 小组图例
+//     groups.forEach((group, i) => {
+//         ctx.fillStyle = group.color;
+//         ctx.fillRect(legendX, legendY + i*30, 20, 20);
+//         ctx.fillStyle = "#333";
+//         ctx.font = "14px Arial";
+//         ctx.fillText(group.name, legendX + 30, legendY + 15 + i*30);
+//     });
+
+//     // 成员图例
+//     const memberLegendX = 50, memberLegendY = 200;
+//     groups.forEach((group, i) => {
+//         group.members.forEach((member, j) => {
+//             ctx.fillStyle = config.memberColors[i][j];
+//             ctx.fillRect(memberLegendX + j*100, memberLegendY + i*30, 20, 20);
+//             ctx.fillStyle = "#333";
+//             ctx.fillText(member.name, 
+//                         memberLegendX + j*100 + 30, 
+//                         memberLegendY + 15 + i*30);
+//         });
+//     });
+// }
+
+// 交互检测
+canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const mouse = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+    };
+    
+    const dx = mouse.x - config.center.x;
+    const dy = mouse.y - config.center.y;
+    const distance = Math.sqrt(dx*dx + dy*dy);
+    const angle = Math.atan2(dy, dx) + Math.PI/2;
+    
+    let cumulativeAngle = -Math.PI/2;
+    let found = false;
+    
+    groups.some(group => {
+        const groupAngle = (group.total / totalValue) * Math.PI*2;
+        
+        // 检测内层小组区域
+        if (angle >= cumulativeAngle && 
+            angle <= cumulativeAngle + groupAngle &&
+            distance <= config.innerRadius) {
+            
+            tooltip.innerHTML = `
+                <strong>${group.name}</strong><hr>
+                总讨论量：${group.total}条
+            `;
+            found = true;
+            return true;
+        }
+        
+        // 检测外层成员区域
+        if (distance > config.innerRadius && distance <= config.outerRadius) {
+            let memberStart = cumulativeAngle;
+            group.members.some(member => {
+                const memberAngle = (member.value / group.total) * groupAngle;
+                if (angle >= memberStart && angle <= memberStart + memberAngle) {
+                    tooltip.innerHTML = `
+                        <strong>${group.name}</strong><hr>
+                        ${member.name}：${member.value}条<br>
+                        占比：${((member.value/group.total)*100).toFixed(1)}%
+                    `;
+                    found = true;
+                    return true;
+                }
+                memberStart += memberAngle;
+            });
+        }
+        
+        cumulativeAngle += groupAngle;
+    });
+    
+    if (found) {
+        tooltip.style.left = e.clientX + 15 + 'px';
+        tooltip.style.top = e.clientY + 'px';
+        tooltip.style.display = 'block';
+    } else {
+        tooltip.style.display = 'none';
+    }
+});
+
+// 初始化绘制
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+drawPie();
+drawLegend();
+</script>
+</body>
+</html> 

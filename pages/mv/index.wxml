@@ -1,0 +1,29 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="navbar">
+    <text class="title">EduTrack</text>
+    <!-- <view class="search-box">
+      <input class="search-input" placeholder="搜索"/>
+    </view> -->
+  </view>
+
+  <div class="parent">
+    <div class="div1">
+      <text class="card-title">Overview</text>
+      <canvas type="2d" id="stackedWaveChart" canvas-id="myCanvas" style="width: 100%; height:95%;margin-top: 0px;top:-10px"></canvas>
+    </div>
+    <div class="div2">
+      <text class="card-title">Interaction</text>
+      <canvas type="2d" id="stackedWaveChart4" canvas-id="myCanvas" style="width: 50%; height:95%;margin-top: 0px;top:-10px"></canvas>
+      <canvas type="2d" id="stackedWaveChart5" canvas-id="myCanvas" style="width: 50%; height: 95%; margin-top: 0px; top: -46vh; margin-left: 25vw; position: relative; left: 0rpx"></canvas>
+    </div>
+    <div class="div3"> 
+      <text class="card-title">Review</text>
+      <canvas type="2d" id="stackedWaveChart3" canvas-id="myCanvas" style="width: 100%; height:95%;margin-top: 0px;top:-10px"></canvas>
+    </div>
+    <div class="div4"> 
+      <text class="card-title">Status</text>
+      <canvas type="2d" id="stackedWaveChart2" canvas-id="myCanvas" style="width: 100%; height:100%;margin-top: 0px;top:-10px"></canvas>
+    </div>
+  </div>
+</view>

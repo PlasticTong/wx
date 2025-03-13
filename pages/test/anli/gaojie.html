@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分组讨论主题高阶依赖关系</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .canvas-container {
+            position: relative;
+            margin-top: 20px;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        canvas {
+            background-color: #fff;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>分组讨论主题高阶依赖关系</h1>
+        
+        <div class="controls">
+            <button id="showNodes">显示节点</button>
+            <button id="showEdges">显示边</button>
+            <button id="showLabels">显示标签</button>
+            <button id="resetView">重置视图</button>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="discussionCanvas"></canvas>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF5733;"></div>
+                <span>主题A</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #33A1FF;"></div>
+                <span>主题B</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #33FF57;"></div>
+                <span>主题C</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #FF33F7;"></div>
+                <span>主题D</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 讨论数据
+        const discussionData = {
+            participants: ['A', 'B', 'C'],
+            themes: {
+                A: ['A', 'B'],
+                B: ['B', 'C'],
+                C: ['C', 'D']
+            },
+            replyRelations: {
+                A: ['B'],
+                B: ['C'],
+                C: ['D']
+            },
+            themeColors: {
+                A: '#FF5733',
+                B: '#33A1FF',
+                C: '#33FF57',
+                D: '#FF33F7'
+            }
+        };
+
+        // Canvas设置
+        const canvas = document.getElementById('discussionCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.querySelector('.canvas-container');
+        
+        // 设置Canvas尺寸为容器大小
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        
+        // 节点位置
+        const nodePositions = {
+            A: { x: 0.2, y: 0.5 },
+            B: { x: 0.5, y: 0.5 },
+            C: { x: 0.8, y: 0.5 }
+        };
+        
+        // 绘图参数
+        const drawingOptions = {
+            showNodes: true,
+            showEdges: true,
+            showLabels: true,
+            nodeRadius: 30,
+            edgeWidth: 2,
+            labelOffset: 10
+        };
+        
+        // 初始化
+        function init() {
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            document.getElementById('showNodes').addEventListener('click', toggleNodes);
+            document.getElementById('showEdges').addEventListener('click', toggleEdges);
+            document.getElementById('showLabels').addEventListener('click', toggleLabels);
+            document.getElementById('resetView').addEventListener('click', resetView);
+            
+            draw();
+        }
+        
+        // 切换节点显示
+        function toggleNodes() {
+            drawingOptions.showNodes = !drawingOptions.showNodes;
+            draw();
+        }
+        
+        // 切换边显示
+        function toggleEdges() {
+            drawingOptions.showEdges = !drawingOptions.showEdges;
+            draw();
+        }
+        
+        // 切换标签显示
+        function toggleLabels() {
+            drawingOptions.showLabels = !drawingOptions.showLabels;
+            draw();
+        }
+        
+        // 重置视图
+        function resetView() {
+            drawingOptions.showNodes = true;
+            drawingOptions.showEdges = true;
+            drawingOptions.showLabels = true;
+            draw();
+        }
+        
+        // 绘制节点
+        function drawNodes() {
+            ctx.save();
+            ctx.font = '14px Arial';
+            
+            for (const participant in nodePositions) {
+                const pos = nodePositions[participant];
+                const x = pos.x * canvas.width;
+                const y = pos.y * canvas.height;
+                
+                // 绘制节点背景
+                ctx.beginPath();
+                ctx.arc(x, y, drawingOptions.nodeRadius, 0, Math.PI * 2);
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fill();
+                ctx.strokeStyle = '#000000';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 绘制主题颜色
+                const themes = discussionData.themes[participant];
+                const segmentHeight = drawingOptions.nodeRadius * 0.6 / themes.length;
+                
+                themes.forEach((theme, index) => {
+                    ctx.beginPath();
+                    ctx.moveTo(x - drawingOptions.nodeRadius * 0.8, y - drawingOptions.nodeRadius * 0.6 + index * segmentHeight);
+                    ctx.lineTo(x + drawingOptions.nodeRadius * 0.8, y - drawingOptions.nodeRadius * 0.6 + index * segmentHeight);
+                    ctx.lineTo(x + drawingOptions.nodeRadius * 0.8, y - drawingOptions.nodeRadius * 0.6 + (index + 1) * segmentHeight);
+                    ctx.lineTo(x - drawingOptions.nodeRadius * 0.8, y - drawingOptions.nodeRadius * 0.6 + (index + 1) * segmentHeight);
+                    ctx.closePath();
+                    ctx.fillStyle = discussionData.themeColors[theme];
+                    ctx.fill();
+                });
+                
+                // 绘制参与者标签
+                if (drawingOptions.showLabels) {
+                    ctx.fillStyle = '#000000';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(participant, x, y);
+                }
+            }
+            
+            ctx.restore();
+        }
+        
+        // 绘制边
+        function drawEdges() {
+            for (const participant in discussionData.replyRelations) {
+                const relations = discussionData.replyRelations[participant];
+                
+                relations.forEach(target => {
+                    const fromPos = nodePositions[participant];
+                    const toPos = nodePositions[target];
+                    
+                    if (!fromPos || !toPos) return;
+                    
+                    const fromX = fromPos.x * canvas.width;
+                    const fromY = fromPos.y * canvas.height;
+                    const toX = toPos.x * canvas.width;
+                    const toY = toPos.y * canvas.height;
+                    
+                    // 计算中间控制点
+                    const controlX = (fromX + toX) / 2;
+                    const controlY = (fromY + toY) / 2 - 50;
+                    
+                    // 绘制曲线
+                    ctx.beginPath();
+                    ctx.moveTo(fromX, fromY);
+                    ctx.quadraticCurveTo(controlX, controlY, toX, toY);
+                    ctx.strokeStyle = '#000000';
+                    ctx.lineWidth = drawingOptions.edgeWidth;
+                    ctx.stroke();
+                    
+                    // 绘制箭头
+                    const angle = Math.atan2(toY - fromY, toX - fromX);
+                    ctx.save();
+                    ctx.translate(controlX, controlY);
+                    ctx.rotate(angle);
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(0, -10);
+                    ctx.lineTo(20, 0);
+                    ctx.lineTo(0, 10);
+                    ctx.closePath();
+                    ctx.fillStyle = '#000000';
+                    ctx.fill();
+                    
+                    ctx.restore();
+                });
+            }
+        }
+        
+        // 绘制
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (drawingOptions.showEdges) {
+                drawEdges();
+            }
+            
+            if (drawingOptions.showNodes) {
+                drawNodes();
+            }
+        }
+        
+        // 初始化应用
+        init();
+    </script>
+</body>
+</html>

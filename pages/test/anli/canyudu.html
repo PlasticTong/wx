@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>紧凑型学生参与度热力图</title>
+    <style>
+        canvas {
+            border: 1px solid #e8e8e8;
+            margin: 20px auto;
+            background: #fff;
+            display: block;
+        }
+        body {
+            margin: 0;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="dashboard" width="1100" height="680"></canvas>
+
+<script>
+const canvas = document.getElementById('dashboard');
+const ctx = canvas.getContext('2d');
+const groups = 4;  // 4个小组
+const studentsPerGroup = 6; // 每组6人
+const timeSlots = 10; // 10个时间段
+
+// 布局配置
+const config = {
+    cell: {
+        width: 42,    // 单元格宽度
+        height: 22,   // 单元格高度 
+        spacing: 2    // 单元格间隙
+    },
+    group: {
+        spacing: 35,  // 组间间距
+        titleHeight: 25,
+        barHeight: 10
+    },
+    colors: {
+        individual: [
+            {value: 0, color: '#E1F7F5'},  // 浅青色（#108b96的浅色衍生）
+            {value: 50, color: '#108b96'},  // 主青蓝色
+            {value: 100, color: '#284179'}  // 主深蓝色
+        ],
+        groupBar: [
+            {value: 0, color: '#D8E2FA'},   // 浅蓝（#284179的浅色衍生）
+            {value: 100, color: '#284179'}  // 主深蓝色
+        ]
+    }
+};
+
+// 生成模拟数据
+const data = Array.from({length: groups}, (_, gi) => {
+    const students = Array.from({length: studentsPerGroup}, () => 
+        Array.from({length: timeSlots}, () => Math.random()*100)
+    );
+    
+    // 计算统计量
+    const means = Array.from({length: timeSlots}, (_, ti) =>
+        students.reduce((sum, s) => sum + s[ti], 0) / studentsPerGroup
+    );
+    
+    const variances = means.map((mean, ti) =>
+        Math.sqrt(students.reduce((sum, s) => sum + Math.pow(s[ti]-mean,2),0)/studentsPerGroup)
+    );
+
+    return {
+        means,
+        variances,
+        students,
+        rank: groups - gi  // 模拟排名
+    };
+});
+
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let currentY = 35;
+
+    data.forEach((group, gi) => {
+        // 组标题
+        ctx.fillStyle = '#262626';
+        ctx.font = '500 14px sans-serif';
+        // ctx.fillText(`第 ${String.fromCharCode(65 + gi)} 组`, 25, currentY - 8);
+
+        // 组平均条
+        drawGroupMeanBar(group.means, currentY - 25);
+        
+        // // 对比徽章
+        // drawComparisonBadge(160, currentY - 15, 
+        //     Math.max(...group.variances), 
+        //     group.rank
+        // );
+
+        // 学生热力图
+        group.students.forEach((student, si) => {
+            const yPos = currentY + si * (config.cell.height + 1);
+            
+            student.forEach((value, ti) => {
+                const xPos = 180 + ti * (config.cell.width + config.cell.spacing);
+                
+                // 主体色块
+                ctx.fillStyle = getColor(value, config.colors.individual);
+                ctx.fillRect(xPos, yPos, config.cell.width, config.cell.height);
+                
+                // 动态边框
+                const diff = value - group.means[ti];
+                if(diff > group.means[ti]*0.15) {
+                    drawBorder(xPos, yPos, '#389e0d', 2); // 绿
+                } else if(diff < -group.means[ti]*0.2) {
+                    drawBorder(xPos, yPos, '#cf1322', 1, [3,2]); // 红虚线
+                }
+            });
+        });
+
+        currentY += studentsPerGroup * (config.cell.height + 1) + config.group.spacing;
+    });
+
+    drawLegend();
+}
+
+// 组平均色条
+function drawGroupMeanBar(means, y) {
+    const avg = means.reduce((a,b)=>a+b)/timeSlots;
+    const gradient = ctx.createLinearGradient(180,0, canvas.width-50,0);
+    config.colors.groupBar.forEach(c => 
+        gradient.addColorStop(c.value/100, c.color)
+    );
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(180, y, 750*(avg/100), config.group.barHeight);
+}
+
+// 对比徽章
+function drawComparisonBadge(x, y, variance, rank) {
+    const radius = 8 + variance/5;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(255,255,255,0.95)';
+    ctx.strokeStyle = '#096dd9';
+    ctx.lineWidth = 1.5;
+    ctx.fill();
+    ctx.stroke();
+    
+    ctx.fillStyle = '#0958d9';
+    ctx.font = `bold ${Math.min(14, radius*1.2)}px sans-serif`;
+    ctx.fillText(rank, x, y + 4);
+}
+
+// 动态边框
+function drawBorder(x, y, color, width, dash=[]) {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.setLineDash(dash);
+    ctx.strokeRect(x+0.5, y+0.5, config.cell.width, config.cell.height);
+    ctx.restore();
+}
+
+// 颜色计算
+function getColor(value, scale) {
+    for(let i=1; i<scale.length; i++) {
+        if(value <= scale[i].value) {
+            const ratio = (value - scale[i-1].value)/(scale[i].value - scale[i-1].value);
+            return interpolateColor(scale[i-1].color, scale[i].color, ratio);
+        }
+    }
+    return scale[scale.length-1].color;
+}
+
+// 颜色插值
+function interpolateColor(c1, c2, ratio) {
+    const hex = c => parseInt(c.replace('#',''),16);
+    const [r1,g1,b1] = [hex(c1)>>16, (hex(c1)>>8)&0xff, hex(c1)&0xff];
+    const [r2,g2,b2] = [hex(c2)>>16, (hex(c2)>>8)&0xff, hex(c2)&0xff];
+    return `rgb(${r1+(r2-r1)*ratio|0},${g1+(g2-g1)*ratio|0},${b1+(b2-b1)*ratio|0})`;
+}
+
+// 图例系统
+function drawLegend() {
+    // 个体图例
+    // drawColorRamp(860, 40, config.colors.individual, '个体参与度');
+    // 组图例
+    // drawColorRamp(860, 70, config.colors.groupBar, '小组均值');
+}
+
+function drawColorRamp(x, y, scale, title) {
+    // 渐变条
+    const gradient = ctx.createLinearGradient(x, y, x+120, y);
+    scale.forEach(c => gradient.addColorStop(c.value/100, c.color));
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, 120, 12);
+    
+    // 文字
+    ctx.fillStyle = '#454d64';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(title, x, y-6);
+    ctx.fillText('0%', x-24, y+8);
+    ctx.fillText('100%', x+128, y+8);
+}
+
+// 初始化
+draw();
+
+// 响应式调整
+window.addEventListener('resize', () => {
+    canvas.width = canvas.offsetWidth * devicePixelRatio;
+    canvas.height = canvas.offsetHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+    draw();
+});
+</script>
+</body>
+</html>

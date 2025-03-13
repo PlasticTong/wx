@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>可配置化图形</title>
+    <style>
+        canvas {
+            border: 1px solid #eee;
+            background: #f9f9f9;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="600" height="10000"></canvas>
+
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 高清适配
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = 600 * dpr;
+        canvas.height = 1000 * dpr;
+        ctx.scale(dpr, dpr);
+
+        function draw_over(rectX, rectY, rectTime, rectColors, lines,ctx) {
+            // 配置参数
+            const config = {
+                // 矩形配置
+                rect: {
+                    x: rectX,         // 水平起始位置
+                    y: rectY,         // 垂直起始位置
+                    width: 50,       // 矩形宽度
+                    totalHeight: rectTime,// 总高度
+                    colors: rectColors, // 上/中/下颜色
+                    bottomOffset: 50 // 底部下方斜线偏移量
+                },
+
+                // 线条配置
+                lines: lines
+            };
+
+
+
+            function calculateTarget(rect, targetType) {
+                const square = rect.width;
+                const middleH = rect.totalHeight - 2 * square;
+
+                switch (targetType) {
+                    case 'rect-top':
+                        return {
+                            x: rect.x + square / 2,
+                            y: rect.y + square / 2
+                        };
+                    case 'rect-middle':
+                        return {
+                            x: rect.x + square / 2,
+                            y: rect.y + square + middleH / 2
+                        };
+                    case 'rect-bottom':
+                        return {
+                            x: rect.x + square / 2,
+                            y: rect.y + rect.totalHeight - square / 2
+                        };
+                    default:
+                        return null;
+                }
+            }
+
+            function draw() {
+                // ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // 绘制矩形
+                const rect = config.rect;
+                const square = rect.width;
+                const middleH = rect.totalHeight - 2 * square;
+
+                // // 顶部
+                // ctx.fillStyle = rect.colors[0];
+                // ctx.fillRect(rect.x, rect.y, square, square);
+                // // 中部
+                // ctx.fillStyle = rect.colors[1];
+                // ctx.fillRect(rect.x, rect.y + square, square, middleH);
+                // // 底部
+                // ctx.fillStyle = rect.colors[2];
+                // ctx.fillRect(rect.x, rect.y + square + middleH, square, square);
+
+                // 绘制所有线条
+                config.lines.forEach(line => {
+                    // 主竖线
+                    ctx.beginPath();
+                    ctx.moveTo(line.position, line.main.startY);
+                    ctx.lineTo(line.position, line.main.endY);
+                    ctx.strokeStyle = line.color;
+                    ctx.lineWidth = 6;
+                    ctx.stroke();
+
+                    // 绘制连接线
+                    if (line.targets) {
+                        line.targets.forEach(target => {
+                            if (target.type) {
+                                // 矩形连接线
+                                const point = calculateTarget(rect, target.type);
+                                ctx.beginPath();
+                                ctx.moveTo(line.position, line.main.endY);
+                                ctx.lineTo(point.x, point.y);
+                                ctx.stroke();
+                            } else {
+                                // 底部下方斜线
+                                ctx.beginPath();
+                                ctx.moveTo(
+                                    rect.x + rect.width / 2,
+                                    rect.y + rect.totalHeight + rect.bottomOffset
+                                );
+                                ctx.lineTo(line.position, target.yOffset);
+                                ctx.stroke();
+                            }
+                        });
+                    }
+                });
+
+                // 顶部
+                ctx.fillStyle = rect.colors[0];
+                ctx.fillRect(rect.x, rect.y, square, square);
+                // 中部
+                ctx.fillStyle = rect.colors[1];
+                ctx.fillRect(rect.x, rect.y + square, square, middleH);
+                // 底部
+                ctx.fillStyle = rect.colors[2];
+                ctx.fillRect(rect.x, rect.y + square + middleH, square, square);
+            }
+
+            draw();
+        }
+        // 线条配置
+        const timeMax = 500
+        const lines = [
+            { // 第一条线
+                color: '#FF6B6B',
+                position: 100,   // X轴位置
+                main: { startY: 20, endY: 100 }, // 主线段
+                targets: [
+                    { type: 'rect-top' },      // 连接到矩形顶部
+                    { yOffset: timeMax }          // 底部下方斜线
+                ]
+            },
+            { // 第二条线
+                color: '#4ECDC4',
+                position: 250,
+                main: { startY: 20, endY: 100 },
+                targets: [
+                    { type: 'rect-middle' },
+                    { yOffset: timeMax }
+                ]
+            },
+            { // 第三条线
+                color: '#45B7D1',
+                position: 400,
+                main: { startY: 20, endY: timeMax }
+            },
+            { // 第四条线
+                color: '#FFD700',
+                position: 550,
+                main: { startY: 20, endY: 100 },
+                targets: [
+                    { type: 'rect-bottom' },
+                    { yOffset: timeMax }
+                ]
+            }
+        ]
+        draw_over(375, 200, 200, ['#FF6B6B', '#45B7D1', '#FFD700'], lines,ctx)
+
+        // 线条配置
+        const timeMax2 = 1000
+        const lines2 = [
+            { // 第一条线
+                color: '#FF6B6B',
+                position: 100,   // X轴位置
+                main: { startY: 500, endY: 600 }, // 主线段
+                targets: [
+                    { type: 'rect-bottom' },      // 连接到矩形顶部
+                    { yOffset: timeMax2 }          // 底部下方斜线
+                ]
+            },
+            { // 第二条线
+                color: '#4ECDC4',
+                position: 250,
+                main: { startY: 500, endY: timeMax2 }
+            },
+            { // 第三条线
+                color: '#45B7D1',
+                position: 400,
+                main: { startY: 500, endY: 600 },
+                targets: [
+                    { type: 'rect-middle' },
+                    { yOffset: timeMax2 }
+                ]
+            },
+            { // 第四条线
+                color: '#FFD700',
+                position: 550,
+                main: { startY: 500, endY: 600 },
+                targets: [
+                    { type: 'rect-top' },
+                    { yOffset: timeMax2 }
+                ]
+            }
+        ]
+        draw_over(225, 600, 300, ['#FFD700', '#4ECDC4', '#FF6B6B'], lines2,ctx)
+
+
+
+    </script>
+</body>
+
+</html>

@@ -2,7 +2,8 @@
   
   "pages": [
 
-    "pages/test/cuitong"
+
+    "pages/mv/index"
   ],
   "window": {
     "navigationBarTextStyle": "black",

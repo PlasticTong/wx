@@ -116,6 +116,27 @@ Page({
     const cols = 16;
     heatmap.drawHeatmap(rows, cols);
     reviewChart.drawCanvasReview()
+
+    wx.request({
+      url: 'http://192.168.1.116:5000/', //仅为示例，并非真实的接口地址
+      data: {
+        x: '',
+        y: ''
+      },
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success (res) {
+        console.log(res.data)
+      }
+    })
+
+    // wx.startLocalServiceDiscovery({
+    //   // 当前手机所连的局域网下有一个 _http._tcp. 类型的服务
+    //   serviceType: '_http._tcp.',
+    //   success: console.log,
+    //   fail: console.log
+    // })
   },
   initcanvas: function () {
     wx.createSelectorQuery()
