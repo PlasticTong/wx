@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>基础服务层架构图</title>
+    <style>
+        canvas {
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+
+        .legend {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="archCanvas" width="1200" height="800"></canvas>
+    <div class="legend">
+        <h3>图例说明</h3>
+        <p><span style="color:#4CAF50">■</span> 网络服务</p>
+        <p><span style="color:#2196F3">■</span> 存储服务</p>
+        <p><span style="color:#9C27B0">■</span> 数据处理</p>
+        <p><span style="color:#FF9800">■</span> 基础设施</p>
+    </div>
+
+    <script>
+        const components = [
+            // WebSocket集群
+            {
+                id: 'ws-cluster',
+                type: 'network',
+                x: 200, y: 300,
+                width: 180, height: 80,
+                label: 'WebSocket集群\n(Flask-SocketIO)',
+                ports: [
+                    { x: 290, y: 380, type: 'output', target: 'msg-queue' },
+                    { x: 200, y: 340, type: 'input' }
+                ]
+            },
+
+            // 消息队列
+            {
+                id: 'msg-queue',
+                type: 'infra',
+                x: 450, y: 250,
+                width: 150, height: 150,
+                shape: 'circle',
+                label: '消息队列\n(Redis/Kafka)'
+            },
+
+            // 异步工作者
+            {
+                id: 'async-workers',
+                type: 'processing',
+                x: 750, y: 300,
+                width: 180, height: 100,
+                label: '异步工作者集群\n(Celery)'
+            },
+
+            // 存储服务
+            {
+                id: 'storage',
+                type: 'storage',
+                x: 600, y: 500,
+                width: 220, height: 120,
+                label: '分布式存储\n(MinIO/S3)'
+            },
+
+            // 数据库集群
+            {
+                id: 'database',
+                type: 'storage',
+                x: 300, y: 600,
+                width: 200, height: 90,
+                label: '数据库集群\n(PostgreSQL/TimescaleDB)'
+            }
+        ];
+
+        const connections = [
+            { from: 'ws-cluster', to: 'msg-queue', label: '实时消息', color: '#FF5722' },
+            { from: 'msg-queue', to: 'async-workers', label: '任务分发', color: '#795548' },
+            { from: 'async-workers', to: 'storage', label: '处理结果存储', color: '#009688' },
+            { from: 'storage', to: 'database', label: '冷热数据交换', color: '#673AB7' },
+            { from: 'database', to: 'ws-cluster', label: '状态查询', color: '#E91E63' }
+        ];
+
+        function drawComponent(ctx, comp) {
+            ctx.save();
+
+            // 设置颜色
+            const colors = {
+                network: '#4CAF50',
+                storage: '#2196F3',
+                processing: '#9C27B0',
+                infra: '#FF9800'
+            };
+
+            // 绘制形状
+            if (comp.shape === 'circle') {
+                ctx.beginPath();
+                ctx.arc(comp.x + comp.width / 2, comp.y + comp.height / 2, comp.width / 2, 0, Math.PI * 2);
+                ctx.fillStyle = colors[comp.type] + '40';
+                ctx.fill();
+                ctx.strokeStyle = colors[comp.type];
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            } else {
+                ctx.fillStyle = colors[comp.type] + '40';
+                ctx.fillRect(comp.x, comp.y, comp.width, comp.height);
+                ctx.strokeStyle = colors[comp.type];
+                ctx.lineWidth = 2;
+                ctx.strokeRect(comp.x, comp.y, comp.width, comp.height);
+            }
+
+            // 绘制文字
+            ctx.fillStyle = '#333';
+            ctx.font = '12px Arial';
+            comp.label.split('\n').forEach((line, i) => {
+                ctx.fillText(line, comp.x + 10, comp.y + 25 + i * 20);
+            });
+
+            // 绘制端口
+            comp.ports?.forEach(port => {
+                ctx.beginPath();
+                ctx.arc(port.x, port.y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = port.type === 'input' ? '#4CAF50' : '#F44336';
+                ctx.fill();
+            });
+
+            ctx.restore();
+        }
+
+        function drawConnection(ctx, conn) {
+            const fromComp = components.find(c => c.id === conn.from);
+            const toComp = components.find(c => c.id === conn.to);
+
+            ctx.beginPath();
+            ctx.moveTo(fromComp.x + fromComp.width, fromComp.y + fromComp.height / 2);
+            ctx.bezierCurveTo(
+                fromComp.x + fromComp.width + 100, fromComp.y + fromComp.height / 2,
+                toComp.x - 100, toComp.y + toComp.height / 2,
+                toComp.x, toComp.y + toComp.height / 2
+            );
+            ctx.strokeStyle = conn.color;
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.stroke();
+
+            // 绘制箭头
+            const arrowSize = 8;
+            ctx.fillStyle = conn.color;
+            ctx.beginPath();
+            ctx.moveTo(toComp.x, toComp.y + toComp.height / 2);
+            ctx.lineTo(toComp.x - arrowSize, toComp.y + toComp.height / 2 - arrowSize);
+            ctx.lineTo(toComp.x - arrowSize, toComp.y + toComp.height / 2 + arrowSize);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function draw() {
+            const canvas = document.getElementById('archCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 绘制所有连接
+            connections.forEach(conn => drawConnection(ctx, conn));
+
+            // 绘制所有组件
+            components.forEach(comp => drawComponent(ctx, comp));
+        }
+
+        // 初始化绘制
+        draw();
+
+        // 添加简单交互
+        document.querySelector('canvas').addEventListener('click', function (e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            components.forEach(comp => {
+                if (x > comp.x && x < comp.x + comp.width &&
+                    y > comp.y && y < comp.y + comp.height) {
+                    console.log('点击组件:', comp.label);
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
